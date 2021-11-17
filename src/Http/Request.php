@@ -14,8 +14,6 @@ class Request
 
     public static function getPath()
     {
-        return $_SERVER['PATH_INFO'] ?? '/';
-        //http://www.example.com/php/path_info.php/some/stuff?foo=bar, 
-        // then $_SERVER['PATH_INFO'] would contain /some/stuff.
+        return $_SERVER['REQUEST_URI'] ?? '/';
     }
 }
