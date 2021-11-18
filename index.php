@@ -1,32 +1,36 @@
-<?php 
+<?php
+
 require_once './vendor/autoload.php';
 
-use Eclair\Routing\Route;
-use Eclair\Routing\Middleware;
-use Eclair\Database\Adaptor;
+// 데이터베이스 연결
+// 세션 켜기
+// 에러 핸들러 등록
+// 환경설정
 
-Adaptor::setup('mysql:dbname=OOP', 'homestead', 'secret');
 
-class HelloMiddleWare extends Middleware 
+use Eclair\Support\ServiceProvider;
+use Eclair\Application;
+
+
+class SessionServiceProvide extends ServiceProvider
 {
-  public static function process()
+  public static function register()
   {
-    return true; 
+    // session_set_save_handler
+  
+    // Route::add...
+  }
+
+  public static function boot()
+  {
+    // session_start();
   }
 }
 
-Route::add('get', '/', function() {
-  echo 'Hello, World';
-}, [ HelloMiddleWare::class ]);
+$app = new Application([
+  SessionServiceProvicder::class
+]);
 
-Route::add('get', '/posts/{id}', function ($id) { // {id}를 파라미터로 받음
-  if($post = Adaptor::getAll('SELECT * FROM posts WHERE `id` = ?', [$id])) {
-    return var_dump($post);
-  }
-  http_response_code(404);
-});
-
-Route::run();
 
 
 ?>

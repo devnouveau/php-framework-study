@@ -11,39 +11,21 @@ use Eclair\Database\Adaptor;
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ); */
 
-class DatabaseSessionHandler implements \SessionHandlerInterface
+class DatabaseSessionHandler implements \SessionHandlerInterface 
+// SessionHandlerInterface : 커스텀 세션 핸들러를 생성하기 위한 최소한의 프로토타입을 정의하고 있음. 
 {
-    /**
-     * SessionHandlerInterface::open
-     *
-     * @param string $savePath
-     * @param string $sessionName
-     *
-     * @return bool
-     */
-    public function open($savePath, $sessionName)
+
+    public function open($savePath, $sessionName) // 세션이 시작될 때 실행되는 콜백 (eg. session_start()호출시)
     {
         return true;
     }
 
-    /**
-     * SessionHandlerInterface::close
-     *
-     * @return bool
-     */
-    public function close()
+    public function close() // session_write_close() 호출시  호출됨
     {
         return true;
     }
 
-    /**
-     * SessionHandlerInterface::read
-     *
-     * @param string $id
-     *
-     * @return string
-     */
-    public function read($id)
+    public function read($id) // 세션읽어오기. 없으면 등록하기 // 세션이 시작될 때 실행되는 콜백. open() 이후에 호출됨
     {
         $data = current(Adaptor::getAll('SELECT * FROM sessions WHERE `id` = ?', [ $id ]));
 
@@ -55,39 +37,17 @@ class DatabaseSessionHandler implements \SessionHandlerInterface
         return $payload ?? '';
     }
 
-    /**
-     * SessionHandlerInterface::write
-     *
-     * @param string $id
-     * @param string $payload
-     *
-     * @return bool
-     */
-    public function write($id, $payload)
+    public function write($id, $payload) // session_write_close() 호출시 호출됨
     {
         return Adaptor::exec('UPDATE sessions SET `payload` = ? WHERE `id` = ?', [ $payload, $id ]);
     }
 
-    /**
-     * SessionHandlerInterface::destroy
-     *
-     * @param string $id
-     *
-     * @return bool
-     */
-    public function destroy($id)
+    public function destroy($id) // executed when   session_destroy() or with session_regenerate_id() with the destroy parameter set to true
     {
         return Adaptor::exec('DELETE FROM sessions WHERE `id` = ?', [ $id ]);
     }
 
-    /**
-     * SessionHandlerInterface::gc
-     *
-     * @param int $maxlifetime
-     *
-     * @return bool
-     */
-    public function gc($maxlifetime)
+    public function gc($maxlifetime) // 만료세션 제거
     {
         if ($sessions = Adaptor::getAll('SELECT * FROM sessions')) {
             foreach ($sessions as $session) {
